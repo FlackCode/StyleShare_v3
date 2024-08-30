@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Home | StyleShare",
-  description: "Home page of StyleShare",
+  title: "StyleShare",
+  description: "StyleShare",
 };
 
 export default function RootLayout({

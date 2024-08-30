@@ -1,33 +1,15 @@
-import { BsSearch, BsPersonFill } from "react-icons/bs";
+import Navbar from "@/components/NavBar";
 
 export default function Home() {
   return (
     <div className="h-screen">
-      <div className="flex justify-between py-2 px-4 xl:px-16">
-        <h1 className="font-bold tracking-wider text-lg md:text-xl">STYLESHARE</h1>
-        <div className="flex gap-2">
-          <button className="border border-black font-bold text-xs md:text-base px-1 transition-all duration-300 hover:bg-black hover:text-white">SELL</button>
-          <button className="border border-black font-bold text-xs md:text-base px-1 transition-all duration-300 hover:bg-black hover:text-white">SHOP</button>
-          <button className="border border-black font-bold text-xs md:text-base px-1 transition-all duration-300 hover:bg-black hover:text-white">LOGIN</button>
-          <button className="border border-black font-bold text-xs md:text-base px-1 transition-all duration-300 hover:bg-black hover:text-white">SIGN UP</button>
-        </div>
-      </div>
-      <form className="px-2 py-2 m-2 border border-black flex flex-row items-center xl:mx-16">
-        <label htmlFor="search" className="px-2">
-          <BsSearch />
-        </label>
-        <input type="text" name="search" id="search" placeholder="Search..." 
-          className="flex-1 h-full focus:outline-none border-none"/>
-        <button className="border border-black font-bold text-sm md:text-base px-2 py-1 transition-all duration-300 hover:bg-black hover:text-white">
-          GO
-        </button>
-      </form>
+      <Navbar />
       <div className="border-t border-b border-gray-300 p-4 flex justify-between xl:px-16">
-        <h1 className="font-bold md:text-lg">BRANDS</h1>
-        <h1 className="font-bold md:text-lg">MEN</h1>
-        <h1 className="font-bold md:text-lg">WOMEN</h1>
-        <h1 className="font-bold md:text-lg">SALES</h1>
-        <h1 className="font-bold md:text-lg">NEW</h1>
+        <h1 className="font-bold md:text-lg transition-all duration-300 hover:scale-105 select-none cursor-pointer">BRANDS</h1>
+        <h1 className="font-bold md:text-lg transition-all duration-300 hover:scale-105 select-none cursor-pointer">MEN</h1>
+        <h1 className="font-bold md:text-lg transition-all duration-300 hover:scale-105 select-none cursor-pointer">WOMEN</h1>
+        <h1 className="font-bold md:text-lg transition-all duration-300 hover:scale-105 select-none cursor-pointer">SALES</h1>
+        <h1 className="font-bold md:text-lg transition-all duration-300 hover:scale-105 select-none cursor-pointer">NEW</h1>
       </div>
       <div className="flex justify-center">
         <div className="flex flex-col justify-center min-h-[80svh] px-2 md:px-8 xl:max-w-3xl">
