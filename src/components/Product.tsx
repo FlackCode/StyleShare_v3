@@ -11,7 +11,7 @@ type ProductProps = {
 export default function Product({ name, description, price, imagePath }: ProductProps) {
     return (
         <div className="flex flex-col">
-            <div className="relative h-48 md:h-60 border border-black ">
+            <div className="relative aspect-square border border-black ">
                 <Image src={imagePath} alt={name}fill className="object-cover"/>
             </div>
             <div className="flex justify-between mt-2">
