@@ -7,8 +7,8 @@ export default function Navbar() {
             <div className="flex justify-between py-2 px-4 xl:px-16">
               <Link href={'/'} className="font-bold tracking-wider text-lg md:text-xl">STYLESHARE</Link>
               <div className="flex gap-2">
-                <button className="border border-black font-bold text-xs md:text-base px-1 transition-all duration-300 hover:bg-black hover:text-white
-                flex items-center">SELL</button>
+                <Link href={"/sell"} className="border border-black font-bold text-xs md:text-base px-1 transition-all duration-300 hover:bg-black hover:text-white
+                flex items-center">SELL</Link>
                 <Link href={"/shop"} className="border border-black font-bold text-xs md:text-base px-1 transition-all duration-300 hover:bg-black hover:text-white
                 flex items-center">SHOP</Link>
                 <Link href={"/login"} className="border border-black font-bold text-xs md:text-base px-1 transition-all duration-300 hover:bg-black hover:text-white
@@ -27,6 +27,6 @@ export default function Navbar() {
                 GO
               </button>
             </form>
-        </>
+      </>
     )
 }
