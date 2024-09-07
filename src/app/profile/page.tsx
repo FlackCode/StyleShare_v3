@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/NavBar";
+import { useRouter } from "next/navigation";
+import { useUserStore } from "@/lib/stateHandler";
 
 type Product = {
   id: number;
@@ -24,6 +26,9 @@ export default function ProfilePage() {
     confirmPassword: "",
   });
 
+  const router = useRouter();
+  const { logout } = useUserStore();
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setUserInfo({ ...userInfo, [name]: value });
@@ -33,6 +38,11 @@ export default function ProfilePage() {
     e.preventDefault();
     alert("Password changed successfully!");
   };
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/');
+  }
 
   return (
     <div>
@@ -55,7 +65,7 @@ export default function ProfilePage() {
                   Change Password
                 </button>
               </form>
-              <button className="w-full py-2 px-4 border border-black rounded font-bold hover:bg-black hover:text-white transition duration-300">
+              <button className="w-full py-2 px-4 border border-black rounded font-bold hover:bg-black hover:text-white transition duration-300" onClick={handleLogout}>
                 Logout
               </button>
             </div>

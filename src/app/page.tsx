@@ -4,15 +4,6 @@ export default function Home() {
   return (
     <div className="h-screen">
       <Navbar />
-      {/*
-      <div className="border-t border-b border-gray-300 p-4 flex justify-between xl:px-16">
-        <h1 className="font-bold md:text-lg transition-all duration-300 hover:scale-105 select-none cursor-pointer">BRANDS</h1>
-        <h1 className="font-bold md:text-lg transition-all duration-300 hover:scale-105 select-none cursor-pointer">MEN</h1>
-        <h1 className="font-bold md:text-lg transition-all duration-300 hover:scale-105 select-none cursor-pointer">WOMEN</h1>
-        <h1 className="font-bold md:text-lg transition-all duration-300 hover:scale-105 select-none cursor-pointer">SALES</h1>
-        <h1 className="font-bold md:text-lg transition-all duration-300 hover:scale-105 select-none cursor-pointer">NEW</h1>
-      </div>
-      */}
       <div className="flex justify-center">
         <div className="flex flex-col justify-center min-h-[80svh] px-2 md:px-8 xl:max-w-3xl">
           <h1 className="text-3xl md:text-5xl font-bold text-center py-2">FIND YOUR OWN STYLE</h1>

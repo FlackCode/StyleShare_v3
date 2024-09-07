@@ -1,19 +1,23 @@
+"use client"
+
+import { useUserStore } from "@/lib/stateHandler";
 import Link from "next/link";
 import { BsSearch } from "react-icons/bs";
 
 export default function Navbar() {
-  const isLoggedIn = true;
+  const { user } = useUserStore();
+  const isLoggedIn = false;
 
     return (
         <>
             <div className="flex justify-between py-2 px-4 xl:px-16">
               <Link href={'/'} className="font-bold tracking-wider text-lg md:text-xl">STYLESHARE</Link>
               <div className="flex gap-2">
-                <Link href={isLoggedIn ? "/sell" : "/login"} className="border border-black font-bold text-xs md:text-base px-1 transition-all duration-300 hover:bg-black hover:text-white
+                <Link href={user ? "/sell" : "/login"} className="border border-black font-bold text-xs md:text-base px-1 transition-all duration-300 hover:bg-black hover:text-white
                 flex items-center">SELL</Link>
                 <Link href={"/shop"} className="border border-black font-bold text-xs md:text-base px-1 transition-all duration-300 hover:bg-black hover:text-white
                 flex items-center">SHOP</Link>
-                {isLoggedIn ? (
+                {user ? (
                   <Link href={"/profile"} className="border border-black font-bold text-xs md:text-base px-2 py-1 transition-all duration-300 hover:bg-black hover:text-white 
                   flex items-center">PROFILE</Link>
                 ) : (
