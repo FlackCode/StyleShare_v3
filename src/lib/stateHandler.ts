@@ -1,6 +1,7 @@
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from "firebase/auth";
 import { create } from "zustand";
 import { auth } from "./firebase";
+import { addUserToDB } from "./firebaseService";
 
 interface UserState {
     user: any;
@@ -26,11 +27,16 @@ export const useUserStore = create<UserState>((set) => ({
                 set({ error: "Passwords do not match"})
             } else {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                await updateProfile(userCredential.user, {displayName: username});
-                set({ user: userCredential.user, isLoading: false });
+                const user = userCredential.user
+                await updateProfile(user, {displayName: username});
+
+                await addUserToDB(user.uid, { username, email: user.email, createdAt: new Date().toISOString() });
+
+                set({ user, isLoading: false });
             }
         } catch (error:any) {
             set({ error: error.message, isLoading: false});
+            console.error("Registration error: ", error);
         }
     },
 
