@@ -7,6 +7,7 @@ type Review = {
 }
 
 export default function ProductReview({name, comment, imagePath}: Review) {
+
     return (
         <div className="my-2 flex flex-col">
             <div className="flex gap-4 items-center">

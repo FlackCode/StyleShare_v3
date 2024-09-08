@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { BsArrowLeft } from "react-icons/bs";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useUserStore } from "@/lib/stateHandler";
 import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
-    const { register, isLoading, error } = useUserStore();
+    const { register, isLoading, error, user } = useUserStore();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -16,11 +16,14 @@ export default function RegisterPage() {
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
-        register(username, email, password ,confirmPassword);
-        if(!error) {
-            router.push('/');
-        }
+        await register(username, email, password ,confirmPassword);
     }
+
+    useEffect(() => {
+        if (user && !error) {
+            router.push("/");
+        }
+    }, [user, error, router]);
 
     return (
         <div className="flex flex-col overflow-hidden">

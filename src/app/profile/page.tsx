@@ -62,7 +62,7 @@ export default function ProfilePage() {
                   type="submit"
                   className="bg-black text-white py-2 px-4 rounded font-bold hover:bg-gray-800 transition duration-300"
                 >
-                  Change Password
+                  Save Changes
                 </button>
               </form>
               <button className="w-full py-2 px-4 border border-black rounded font-bold hover:bg-black hover:text-white transition duration-300" onClick={handleLogout}>

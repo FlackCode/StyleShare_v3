@@ -16,17 +16,21 @@ export default function Product({ name, description, price, imagePath }: Product
             </div>
             <div className="flex justify-between mt-2">
                 <h1 className="font-bold truncate">{name}</h1>
+                {/*
+                
                 <div className="flex gap-2">
                     <button>
                         <BsHeart />
                     </button>
                 </div>
+
+                */}
             </div>
             <div>
                 <p className="text-sm md:text-base truncate">{description}</p>
             </div>
             <div className="flex justify-between">
-                <p>{price}</p>
+                <p>${price}</p>
                 <p className="font-semibold">Add to Cart</p>
             </div>
         </div>

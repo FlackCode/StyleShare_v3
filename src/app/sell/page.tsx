@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { BsArrowLeft } from "react-icons/bs";
+import { useUserStore } from "@/lib/stateHandler";
+import { addProduct, uploadImage } from "@/lib/firebaseService";
 
 export default function SellPage() {
   const [productImage, setProductImage] = useState<File | null>(null);
@@ -11,6 +13,9 @@ export default function SellPage() {
   const [productType, setProductType] = useState("");
   const [productStock, setProductStock] = useState<number | null>(null);
   const [productSize, setProductSize] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const user = useUserStore((state) => state.user);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -18,9 +23,49 @@ export default function SellPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ productImage, productName, productDescription, productPrice, productType, productStock, productSize });
+    if (!user) {
+      console.error("User not logged in");
+      return;
+    }
+
+    if (!productImage) {
+      console.error("Product image is required");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const imageUrl = await uploadImage(productImage);
+      const productData = {
+        name: productName,
+        description: productDescription,
+        price: parseFloat(productPrice),
+        type: productType,
+        stock: productStock,
+        size: productSize,
+        imageUrl,
+      };
+
+      await addProduct(user.uid, productData);
+
+      console.log("Product successfully added.");
+
+      setProductImage(null);
+      setProductName('');
+      setProductDescription('');
+      setProductPrice('');
+      setProductType('');
+      setProductStock(null);
+      setProductSize('');
+
+    } catch (error) {
+      console.error("Error adding product: ", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

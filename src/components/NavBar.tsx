@@ -6,7 +6,6 @@ import { BsSearch } from "react-icons/bs";
 
 export default function Navbar() {
   const { user } = useUserStore();
-  const isLoggedIn = false;
 
     return (
         <>
