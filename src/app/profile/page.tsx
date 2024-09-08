@@ -1,48 +1,92 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/NavBar";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/lib/stateHandler";
+import { changeUserInfo, getUserInfo, getUserProducts } from "@/lib/firebaseService";
 
-type Product = {
-  id: number;
+interface Product {
+  id: string;
   name: string;
-  price: string;
-  imagePath: string;
-};
+  imageUrl: string;
+  description: string;
+  price: number;
+}
 
 export default function ProfilePage() {
-  const [products, setProducts] = useState<Product[]>([
-    { id: 1, name: "Product A", price: "$99.99", imagePath: "/placeholder.webp" },
-    { id: 2, name: "Product B", price: "$89.99", imagePath: "/placeholder.webp" },
-  ]);
-
-  const [userInfo, setUserInfo] = useState({
-    name: "John Doe",
-    email: "johndoe@example.com",
-    password: "",
-    confirmPassword: "",
-  });
-
   const router = useRouter();
-  const { logout } = useUserStore();
+  const [userProducts, setUserProducts] = useState<Product[]>([]);
+  const { user, logout } = useUserStore();
+  const [userInfo, setUserInfo] = useState<any>({ username: "", password: "", confirmPassword: "" });
+  const [userLoading, setUserLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      if (user?.uid) {
+        try {
+          const info = await getUserInfo(user.uid);
+          setUserInfo(info);
+        } catch (error) {
+          console.error("Error fetching user info: ", error);
+        } finally {
+          setUserLoading(false);
+        }
+      } else {
+        setUserLoading(false);
+      }
+    };
+
+    fetchUserInfo();
+  }, [user]);
+
+  useEffect(() => {
+    const fetchUserProducts = async () => {
+      if (!user?.uid) return;
+
+      try {
+        const fetchedUserProducts = await getUserProducts(user.uid);
+        setUserProducts(fetchedUserProducts);
+      } catch (error) {
+        console.error("Error fetching user products: ", error);
+      }
+    };
+
+    fetchUserProducts();
+  }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setUserInfo({ ...userInfo, [name]: value });
+    setUserInfo((prevState: any) => ({
+      ...prevState, 
+      [name]: value
+    }))
   };
 
-  const handlePasswordChange = (e: React.FormEvent) => {
+  const handleSaveChanges = async(e: React.FormEvent) => {
     e.preventDefault();
-    alert("Password changed successfully!");
-  };
+
+    try {
+      await changeUserInfo(user.uid, {
+        username: userInfo.username,
+        password: userInfo.password,
+        confirmPassword: userInfo.confirmPassword,
+      });
+
+      console.log("Updated user information successfully. ");
+
+    } catch (error) {
+      console.error("Error saving changes: ", error);
+    }
+  }
 
   const handleLogout = async () => {
     await logout();
     router.push('/');
   }
+
+  if (userLoading) return <p>Loading user info...</p>;
 
   return (
     <div>
@@ -51,10 +95,13 @@ export default function ProfilePage() {
             <div className="w-full max-w-2xl bg-white shadow-md rounded p-4 mb-6">
               <h1 className="text-xl font-bold mb-4">Profile Information</h1>
               <div className="flex flex-col gap-2 mb-4">
-                <input type="text" name="name" value={userInfo.name} onChange={handleInputChange} placeholder="Name" className="border p-2 rounded w-full"/>
+                <h1 className="px-1 font-bold">Username</h1>
+                <input type="text" name="username" value={userInfo.username} onChange={handleInputChange} placeholder="Name" className="border p-2 rounded w-full"/>
+                {/* 
                 <input type="email" name="email" value={userInfo.email} onChange={handleInputChange} placeholder="Email" className="border p-2 rounded w-full"/>
+                */}
               </div>
-              <form onSubmit={handlePasswordChange} className="flex flex-col gap-2 mb-4">
+              <form onSubmit={handleSaveChanges} className="flex flex-col gap-2 mb-4">
                 <h2 className="font-bold text-lg mb-2">Change Password</h2>
                 <input type="password" name="password" value={userInfo.password} onChange={handleInputChange} placeholder="New Password" className="border p-2 rounded w-full"/>
                 <input type="password" name="confirmPassword" value={userInfo.confirmPassword} onChange={handleInputChange} placeholder="Confirm New Password" className="border p-2 rounded w-full"/>
@@ -71,14 +118,20 @@ export default function ProfilePage() {
             </div>
             <div className="w-full max-w-2xl bg-white shadow-md rounded p-4">
               <h2 className="text-xl font-bold mb-4">Items You're Selling</h2>
-              {products.length > 0 ? (
+              {userProducts.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {products.map((product) => (
-                    <div key={product.id} className="border p-2 rounded flex flex-col items-center">
-                      <img src={product.imagePath} alt={product.name} className="w-full h-40 object-cover rounded mb-2" />
-                      <h3 className="font-bold">{product.name}</h3>
-                      <p className="text-gray-600">{product.price}</p>
-                    </div>
+                  {userProducts.map((product) => (
+                    <Link key={product.id} href={`/shop/${product.id}`}>
+                    <div className="border p-2 rounded flex flex-col items-center cursor-pointer">
+                        <img
+                          src={product.imageUrl}
+                          alt={product.name}
+                          className="w-full h-64 object-cover rounded mb-2 aspect-square"
+                        />
+                        <h3 className="font-bold">{product.name}</h3>
+                        <p className="text-gray-600">${product.price}</p>
+                      </div>
+                    </Link>
                   ))}
                 </div>
               ) : (

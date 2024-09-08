@@ -2,14 +2,14 @@
 
 import { useUserStore } from "@/lib/stateHandler";
 import Link from "next/link";
-import { BsSearch } from "react-icons/bs";
+import { BsSearch, BsCart4 } from "react-icons/bs";
 
 export default function Navbar() {
   const { user } = useUserStore();
 
     return (
         <>
-            <div className="flex justify-between py-2 px-4 xl:px-16">
+            <div className="flex justify-between items-center py-2 px-4 xl:px-16">
               <Link href={'/'} className="font-bold tracking-wider text-lg md:text-xl">STYLESHARE</Link>
               <div className="flex gap-2">
                 <Link href={user ? "/sell" : "/login"} className="border border-black font-bold text-xs md:text-base px-1 transition-all duration-300 hover:bg-black hover:text-white
@@ -17,8 +17,15 @@ export default function Navbar() {
                 <Link href={"/shop"} className="border border-black font-bold text-xs md:text-base px-1 transition-all duration-300 hover:bg-black hover:text-white
                 flex items-center">SHOP</Link>
                 {user ? (
-                  <Link href={"/profile"} className="border border-black font-bold text-xs md:text-base px-2 py-1 transition-all duration-300 hover:bg-black hover:text-white 
-                  flex items-center">PROFILE</Link>
+                  <>
+                    <Link href={"/profile"} className="border border-black font-bold text-xs md:text-base px-2 py-1 transition-all duration-300 hover:bg-black hover:text-white 
+                    flex items-center">PROFILE</Link>
+                    <Link href={"/profile"} className="border border-black font-bold text-xs md:text-base px-2 py-1 transition-all duration-300 hover:bg-black hover:text-white 
+                  flex items-center">
+                    <BsCart4 size={18}/>
+                  </Link>
+                  </>
+
                 ) : (
                   <>
                     <Link href={"/login"} className="border border-black font-bold text-xs md:text-base px-2 py-1 transition-all duration-300 hover:bg-black hover:text-white 

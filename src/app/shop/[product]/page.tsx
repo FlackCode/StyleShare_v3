@@ -118,7 +118,7 @@ export default function ProductPage() {
           <div className="flex flex-col justify-between xl:justify-start py-2">
             <div className="mb-4">
               <h1 className="font-bold text-2xl">{productData.name}</h1>
-              <p className="text-xl text-gray-700">{productData.price}</p>
+              <p className="text-xl text-gray-700">${productData.price}</p>
             </div>
             <p className="text-gray-600">{productData.description}</p>
           </div>

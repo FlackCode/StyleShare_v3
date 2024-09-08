@@ -1,6 +1,7 @@
-import { addDoc, collection, doc, getDoc, getDocs, query, setDoc } from "firebase/firestore";
-import { db, storage } from "./firebase";
+import { addDoc, collection, doc, getDoc, getDocs, query, setDoc, updateDoc } from "firebase/firestore";
+import { auth, db, storage } from "./firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { updateEmail, updatePassword } from "firebase/auth";
 
 export const addUserToDB = async (userId : any, userData : any) => {
     try {
@@ -45,7 +46,7 @@ interface Product {
     description: string;
     price: number;
     reviews: Review[];
-  }
+}
   
 export const getAllProducts = async (): Promise<Product[]> => {
   try {
@@ -103,6 +104,66 @@ export const getUserInfo = async (userId: string) => {
         }
     } catch (error) {
         console.error("Error fetching user data: ", error);
+        throw error;
+    }
+}
+
+export const getUserProducts = async (userId: string) : Promise<Product[]> => {
+    try {
+        const userRef = doc(db, 'users', userId);
+        const userSnapshot = await getDoc(userRef);
+
+        if (!userSnapshot.exists()) {
+            throw new Error("User not found");
+        }
+
+        const userData = userSnapshot.data();
+        const productIds = userData.products || [];
+
+        if (!productIds.length) {
+            return [];
+        }
+
+        const productsQuery = query(collection(db, "products"));
+        const querySnapshot = await getDocs(productsQuery);
+
+        const userProducts: Product[] = querySnapshot.docs.filter(doc => productIds.includes(doc.id)).map(doc => ({
+            id: doc.id,
+            name: doc.data().name || "",
+            imageUrl: doc.data().imageUrl || "",
+            description: doc.data().description || "",
+            price: doc.data().price || 0,
+            reviews: doc.data().reviews || [],
+        }));
+        
+        return userProducts;
+
+    } catch (error) {
+        console.error("Error fetching user products: ", error);
+        return [];
+    }
+}
+
+export const changeUserInfo = async (userId: string, updatedInfo: any) => {
+    const userRef = doc(db, 'users', userId);
+
+    try {
+        if (updatedInfo.username) {
+            await updateDoc(userRef, { username: updatedInfo.username });
+        }
+
+        //if (updatedInfo.email && auth.currentUser) {
+        //    await updateEmail(auth.currentUser, updatedInfo.email);
+        //    await updateDoc(userRef, { email: updatedInfo.email });
+        //}
+
+        if (updatedInfo.password && updatedInfo.password === updatedInfo.confirmPassword && auth.currentUser) {
+            await updatePassword(auth.currentUser, updatedInfo.password);
+        }
+        
+        console.log("User information updated successfully.");
+    } catch (error) {
+        console.error("Error changing user info: ", error);
         throw error;
     }
 }
