@@ -2,16 +2,17 @@
 
 import Navbar from '@/components/NavBar';
 import ProductReview from '@/components/ProductReview';
-import { addReview, getAllProducts, getUserInfo } from '@/lib/firebaseService';
+import { addReview, fetchProductReviewsWithUserInfo, getAllProducts, getUserInfo } from '@/lib/firebaseService';
 import { useUserStore } from '@/lib/stateHandler';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from "react";
 
 type Review = {
-  name: string;
+  userId: string;
   comment: string;
   imagePath: string;
+  username?: string;
 };
 
 type Product = {
@@ -25,33 +26,21 @@ type Product = {
 
 export default function ProductPage() {
   const { user } = useUserStore();
-  const [userInfo, setUserInfo] = useState<any>(null);
-  const [userLoading, setUserLoading] = useState(true);
-
   const params = useParams();
   const [productData, setProductData] = useState<Product | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [reviewComment, setReviewComment] = useState<string>('');
   const productID = Array.isArray(params.product) ? params.product[0] : params.product;
 
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      if (user?.uid) {
-        try {
-          const info = await getUserInfo(user.uid);
-          setUserInfo(info);
-        } catch (error) {
-          console.error("Error fetching user info: ", error);
-        } finally {
-          setUserLoading(false);
-        }
-      } else {
-        setUserLoading(false);
-      }
-    };
-
-    fetchUserInfo();
-  }, [user]);
+  const fetchAndSetReviews = async (productId: string) => {
+    try {
+      const updatedReviews = await fetchProductReviewsWithUserInfo(productId);
+      setReviews(updatedReviews);
+    } catch (error) {
+      console.error("Error fetching reviews: ", error);
+    }
+  };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -67,6 +56,7 @@ export default function ProductPage() {
       const foundProduct = products.find((p) => p.id === productID);
       if (foundProduct) {
         setProductData(foundProduct);
+        fetchAndSetReviews(productID);
       }
     }
   }, [productID, products]);
@@ -75,27 +65,16 @@ export default function ProductPage() {
     e.preventDefault();
 
     if (!reviewComment.trim()) return;
-    if (!userInfo) {
-      console.error("User info is not available.");
-      return;
-    }
 
     const review: Review = {
-      name: userInfo.username,
+      userId: user.uid,
       comment: reviewComment,
       imagePath: "/placeholderpfp.jpg",
     }
 
     try {
       await addReview(productID, review);
-
-      if (productData) {
-        setProductData({
-          ...productData,
-          reviews: [...productData.reviews, review],
-        });
-      }
-
+      fetchAndSetReviews(productID);
       setReviewComment('');
 
     } catch (error) {
@@ -104,7 +83,6 @@ export default function ProductPage() {
   };
 
   if (!productData) return <p>Loading...</p>;
-  if (userLoading) return <p>Loading user info...</p>;
 
   return (
     <>
@@ -124,9 +102,9 @@ export default function ProductPage() {
           </div>
         </div>
         <hr className="my-8" />
-        {userLoading ? (
-          <p>Loading user info...</p>
-        ) : userInfo ? (
+        {!user ? (
+          <p>Please log in to write a review.</p>
+        ) : user ? (
           <form className="my-2 flex flex-col" onSubmit={handleReviewSubmit}>
             <h1 className="text-lg font-bold">Write a review about this product:</h1>
             <textarea
@@ -144,11 +122,11 @@ export default function ProductPage() {
         )}
         <div className="flex flex-col mt-8">
           <h1 className="text-lg font-bold mb-4">Other Reviews:</h1>
-          {productData.reviews.length > 0 ? (
-            productData.reviews.map((review, index) => (
+          {reviews.length > 0 ? (
+            reviews.map((review, index) => (
               <ProductReview
                 key={index}
-                name={review.name}
+                name={review.username || "Anonymous"}
                 comment={review.comment}
                 imagePath={review.imagePath}
               />

@@ -21,6 +21,7 @@ export default function ProfilePage() {
   const { user, logout } = useUserStore();
   const [userInfo, setUserInfo] = useState<any>({ username: "", password: "", confirmPassword: "" });
   const [userLoading, setUserLoading] = useState(true);
+  const [savedChanges, setSavedChanges] = useState("");
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -76,6 +77,8 @@ export default function ProfilePage() {
 
       console.log("Updated user information successfully. ");
 
+      setSavedChanges("Changes have been saved successfully!");
+
     } catch (error) {
       console.error("Error saving changes: ", error);
     }
@@ -101,10 +104,11 @@ export default function ProfilePage() {
                 <input type="email" name="email" value={userInfo.email} onChange={handleInputChange} placeholder="Email" className="border p-2 rounded w-full"/>
                 */}
               </div>
-              <form onSubmit={handleSaveChanges} className="flex flex-col gap-2 mb-4">
+              <form onSubmit={handleSaveChanges} className="flex flex-col gap-2 mb-2">
                 <h2 className="font-bold text-lg mb-2">Change Password</h2>
                 <input type="password" name="password" value={userInfo.password} onChange={handleInputChange} placeholder="New Password" className="border p-2 rounded w-full"/>
                 <input type="password" name="confirmPassword" value={userInfo.confirmPassword} onChange={handleInputChange} placeholder="Confirm New Password" className="border p-2 rounded w-full"/>
+                <p>{savedChanges}</p>
                 <button
                   type="submit"
                   className="bg-black text-white py-2 px-4 rounded font-bold hover:bg-gray-800 transition duration-300"

@@ -69,7 +69,7 @@ export const getAllProducts = async (): Promise<Product[]> => {
 };
 
 type Review = {
-    name: string;
+    userId: string;
     comment: string;
     imagePath: string;
 };
@@ -152,11 +152,6 @@ export const changeUserInfo = async (userId: string, updatedInfo: any) => {
             await updateDoc(userRef, { username: updatedInfo.username });
         }
 
-        //if (updatedInfo.email && auth.currentUser) {
-        //    await updateEmail(auth.currentUser, updatedInfo.email);
-        //    await updateDoc(userRef, { email: updatedInfo.email });
-        //}
-
         if (updatedInfo.password && updatedInfo.password === updatedInfo.confirmPassword && auth.currentUser) {
             await updatePassword(auth.currentUser, updatedInfo.password);
         }
@@ -167,3 +162,31 @@ export const changeUserInfo = async (userId: string, updatedInfo: any) => {
         throw error;
     }
 }
+export const fetchProductReviewsWithUserInfo = async (productId: string) => {
+    try {
+      const productRef = doc(db, 'products', productId);
+      const productSnapshot = await getDoc(productRef);
+  
+      if (!productSnapshot.exists()) {
+        throw new Error("Product not found");
+      }
+  
+      const productData = productSnapshot.data();
+      const reviews: Review[] = productData.reviews || [];
+  
+      const reviewsWithUserInfo = await Promise.all(
+        reviews.map(async (review) => {
+          const userData = await getUserInfo(review.userId);
+          return {
+            ...review,
+            username: userData.username || 'Anonymous',
+          };
+        })
+      );
+  
+      return reviewsWithUserInfo;
+    } catch (error) {
+      console.error("Error fetching product reviews with user info: ", error);
+      return [];
+    }
+  };
