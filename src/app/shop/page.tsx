@@ -36,7 +36,7 @@ export default function Shop() {
                 <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4 md:gap-8">
                     {products.map(product => (
                         <Link key={product.id} href={`/shop/${product.id}`}>
-                            <Product name={product.name} description={product.description} price={(product.price).toString()} imagePath={product.imageUrl} />
+                            <Product id={product.id} name={product.name} description={product.description} price={(product.price)} imagePath={product.imageUrl} />
                         </Link>
                     ))}
                 </div>

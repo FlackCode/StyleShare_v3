@@ -20,7 +20,7 @@ export default function Navbar() {
                   <>
                     <Link href={"/profile"} className="border border-black font-bold text-xs md:text-base px-2 py-1 transition-all duration-300 hover:bg-black hover:text-white 
                     flex items-center">PROFILE</Link>
-                    <Link href={"/profile"} className="border border-black font-bold text-xs md:text-base px-2 py-1 transition-all duration-300 hover:bg-black hover:text-white 
+                    <Link href={"/cart"} className="border border-black font-bold text-xs md:text-base px-2 py-1 transition-all duration-300 hover:bg-black hover:text-white 
                   flex items-center">
                     <BsCart4 size={18}/>
                   </Link>
