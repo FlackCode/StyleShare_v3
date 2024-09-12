@@ -31,18 +31,24 @@ type Review = {
 interface CartItem {
     id: string;
     quantity: number;
+    price: number;
+    name: string;
+    imageUrl: string;
 }
+
 
 interface CartState {
     cart: CartItem[];
     products: Product[];
     total: number;
-    addtoCart: (productId: string) => void;
+    discount: number;
+    addToCart: (productId: string) => void;
     updateQuantity: (productId: string, quantity: number) => void;
     removeFromCart: (productId: string) => void;
     clearCart: () => void;
-    fetchCartProducts: () => Promise<void>;
+    fetchProducts: () => Promise<void>;
     calculateTotal: () => void;
+    applyPromoCode: (promoCode: string) => void;
 }
 
 export const useUserStore = create<UserState>((set) => ({
@@ -102,73 +108,63 @@ export const useCartStore = create<CartState>((set, get) => ({
     cart: [],
     products: [],
     total: 0,
-
-    addtoCart: (productId) => {
-        const { cart } = get();
-        const existingItem = cart.find(item => item.id === productId);
-
-        if (existingItem) {
-            set({
-                cart: cart.map(item => item.id === productId ? { ...item, quantity: item.quantity + 1} : item)
-            });
-        } else {
-            set({
-                cart: [...cart, { id: productId, quantity: 1 }]
-            });
-        }
+    discount: 0,
+    
+    fetchProducts: async () => {
+      const fetchedProducts = await getAllProducts();
+      set({ products: fetchedProducts });
+    },
+    addToCart: (productId, quantity = 1) => {
+        set((state) => {
+            const product = state.products.find((p) => p.id === productId);
+            if (!product) return state;
+            const existingCartItem = state.cart.find((item) => item.id === productId);
+            if (existingCartItem) {
+                return {
+                    cart: state.cart.map((item) =>
+                        item.id === productId ? { ...item, quantity: item.quantity + quantity } : item
+                    ),
+                };
+            } else {
+                return {
+                    cart: [...state.cart, { id: productId, quantity, price: product.price, name: product.name, imageUrl: product.imageUrl }],
+                };
+            }
+        });
         get().calculateTotal();
-        console.log(cart);
     },
     updateQuantity: (productId, quantity) => {
-        const { cart } = get();
-
-        if (quantity<= 0) {
-            get().removeFromCart(productId);
-            return;
-        }
-
-        set({
-            cart: cart.map(item => item.id === productId ? { ...item, quantity } : item)
-        });
-        get().calculateTotal();
+      set((state) => ({
+        cart: state.cart.map((item) =>
+          item.id === productId ? { ...item, quantity: Math.max(1, quantity) } : item
+        ),
+      }));
+      get().calculateTotal();
     },
     removeFromCart: (productId) => {
-        set({
-            cart: get().cart.filter(item => item.id !== productId)
-        });
-        get().calculateTotal();
+      set((state) => ({
+        cart: state.cart.filter((item) => item.id !== productId),
+      }));
+      get().calculateTotal();
     },
     clearCart: () => {
-        set({
-            cart: [], total: 0
-        });
-    },
-    fetchCartProducts: async () => {
-        try {
-            const allProducts = await getAllProducts();
-            const cart = get().cart;
-            const cartProductIds = cart.map(item => item.id);
-
-            const cartProducts = allProducts.filter(product => cartProductIds.includes(product.id));
-
-            set({
-                products: cartProducts
-            });
-            get().calculateTotal();
-        } catch (error) {
-            console.error("Error fetching cart products: ", error);
-        }
-    },
+        set({ cart: [], total: 0, discount: 0 });
+    },    
     calculateTotal: () => {
-        const { cart, products } = get();
-
-        const total = cart.reduce((sum: number, item: CartItem) => {
-            const product = products.find(p => p.id === item.id);
-            return sum + (product ? product.price * item.quantity : 0);
+        const total = get().cart.reduce((acc, item) => {
+            const product = get().products.find((p) => p.id === item.id);
+            return acc + (product ? product.price * item.quantity : 0);
         }, 0);
-
-        set({
-            total
-        });
+        const finalTotal = total - get().discount;
+        set({ total: finalTotal < 0 ? 0 : finalTotal });
     },
-}));
+    applyPromoCode: (promoCode) => {
+        if (promoCode === "SECRET") {
+            set({ discount: 10 });
+        } else {
+            set({ discount: 0 });
+            alert("Invalid promo code");
+        }
+        get().calculateTotal();
+    },
+  }));
